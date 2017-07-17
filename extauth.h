@@ -64,8 +64,6 @@ public:
   void onFailure(Http::AsyncClient::FailureReason reason) override;
 
 private:
-  void resetInternalState();
-
   ExtAuthConfigConstSharedPtr config_;
   StreamDecoderFilterCallbacks* callbacks_{};
   bool auth_complete_;

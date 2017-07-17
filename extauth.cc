@@ -43,7 +43,7 @@ FilterHeadersStatus ExtAuth::decodeHeaders(HeaderMap& headers, bool) {
       config_->cm_.httpAsyncClientForCluster(config_->cluster_)
           .send(std::move(request), *this, Optional<std::chrono::milliseconds>(config_->timeout_));
   // .send(...) -> onSuccess(...) or onFailure(...)
-  // This handle can be used to .cancel() the request.
+  // This handle can be used to ->cancel() the request.
 
   // Stop until we have a result
   return FilterHeadersStatus::StopIteration;
@@ -103,9 +103,12 @@ void ExtAuth::onFailure(Http::AsyncClient::FailureReason) {
                                 std::string("Auth request failed."));
 }
 
-void ExtAuth::onDestroy() { resetInternalState(); }
-
-void ExtAuth::resetInternalState() {}
+void ExtAuth::onDestroy() {
+  if (auth_request_) {
+    auth_request_->cancel();
+    auth_request_ = nullptr;
+  }
+}
 
 void ExtAuth::setDecoderFilterCallbacks(StreamDecoderFilterCallbacks& callbacks) {
   callbacks_ = &callbacks;
